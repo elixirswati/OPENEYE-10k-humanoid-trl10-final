@@ -1,0 +1,17 @@
+
+phases:
+  - day: 1-7
+    goals:
+      - setup: "Start server; verify /metrics and /status"
+      - audit: "Run feature auditor >= 90% active"
+  - day: 8-14
+    goals:
+      - ai: "Integrate vision stubs; run latency check"
+      - docs: "Update README & API docs"
+  - day: 15-21
+    goals:
+      - dash: "Deploy dashboard and run soak"
+  - day: 22-30
+    goals:
+      - report: "Publish feature & perf report"
+      - review: "Human approval for Phase-2"

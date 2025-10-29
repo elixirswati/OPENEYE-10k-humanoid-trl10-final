@@ -1,0 +1,10 @@
+{
+  "desktop": {
+    "fps_min": 60,
+    "latency_ms_max": 40
+  },
+  "edge": {
+    "fps_min": 45,
+    "latency_ms_max": 50
+  }
+}

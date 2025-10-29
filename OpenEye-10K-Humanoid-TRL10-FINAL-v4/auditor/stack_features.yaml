@@ -1,0 +1,65 @@
+
+features:
+  - name: Server: Simulation & Metrics
+    check: "server/main.py"
+    type: file
+  - name: API: /metrics
+    check: "/metrics"
+    type: api
+  - name: API: /humanoid/status
+    check: "/humanoid/status"
+    type: api
+  - name: Dashboard: Mode Indicator
+    check: "server/static/dashboard.html"
+    type: file
+  - name: Vision: YOLO ONNX Hook
+    check: "vision/yolo_infer.py"
+    type: file
+  - name: Vision: MiDaS Depth Hook
+    check: "vision/midas_depth.py"
+    type: file
+  - name: Vision: FER Emotion Hook
+    check: "vision/emotion_recog.py"
+    type: file
+  - name: Control: Fusion Loop
+    check: "control/fusion_loop.py"
+    type: file
+  - name: Control: Servo Driver
+    check: "control/servo_driver.py"
+    type: file
+  - name: Behavior: Blink Reflex
+    check: "behavior/blink_reflex.py"
+    type: file
+  - name: Behavior: Attention Shift
+    check: "behavior/attention_shift.py"
+    type: file
+  - name: Agent: Self-Heal
+    check: "tools/self_heal.py"
+    type: file
+  - name: Agent: AI Triage
+    check: "tools/ai_triage.py"
+    type: file
+  - name: Agent: Patch Applier
+    check: "tools/ai_apply_patch.py"
+    type: file
+  - name: Agent: Semantic Watchdog
+    check: "monitor/semantic_watchdog.py"
+    type: file
+  - name: Agent: Feature Auditor
+    check: "auditor/feature_auditor.py"
+    type: file
+  - name: Governance: Policy Guard
+    check: "governance/policy_guard.py"
+    type: file
+  - name: Agent: Learning Memory
+    check: "agent/memory.py"
+    type: file
+  - name: Mission: Orchestrator
+    check: "controller/orchestrator.py"
+    type: file
+  - name: ROS Bridge (stub)
+    check: "ros_bridge/ros_eye_bridge.py"
+    type: file
+  - name: ONNX Test Script
+    check: "vision/test_onnx_inference.py"
+    type: file

@@ -1,0 +1,13 @@
+
+fastapi==0.115.4
+uvicorn==0.30.6
+numpy==2.1.1
+pydantic==2.9.2
+requests==2.32.3
+psutil==6.0.0
+PyYAML==6.0.2
+pytest==8.3.3
+openai>=1.40.0,<2.0.0
+# Optional (uncomment if using ONNX + OpenCV)
+# onnxruntime==1.19.2
+# opencv-python==4.10.0.84

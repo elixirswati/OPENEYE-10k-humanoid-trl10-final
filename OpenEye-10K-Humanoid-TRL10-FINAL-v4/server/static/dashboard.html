@@ -1,0 +1,111 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>OpenEye-10K Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:24px;color:#111}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+    .card{border:1px solid #ddd;border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .title{font-weight:700;margin:0 0 10px}
+    .metric{font-size:14px;margin:6px 0}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px}
+    .ok{background:#e8f7ee;color:#126b35;border:1px solid #bde6cd}
+    .bad{background:#fde8e8;color:#8a1f1f;border:1px solid #f5c2c2}
+    .warn{background:#fff8e6;color:#8a6d00;border:1px solid #ffe299}
+    footer{margin-top:24px;color:#666;font-size:12px}
+    h1{margin-top:0}
+    code{background:#f4f4f4;padding:2px 6px;border-radius:6px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-bottom:1px solid #eee;padding:6px 4px;text-align:left;font-size:13px}
+    .mode{font-weight:700}
+  </style>
+</head>
+<body>
+  <h1>OpenEye-10K • Dashboard <span class="mode" id="mode"></span></h1>
+  <div class="grid">
+    <div class="card">
+      <div class="title">Live Metrics</div>
+      <div id="metrics"></div>
+    </div>
+    <div class="card">
+      <div class="title">Feature Audit</div>
+      <div id="audit"></div>
+    </div>
+    <div class="card">
+      <div class="title">Mission Status</div>
+      <div id="mission"></div>
+    </div>
+    <div class="card">
+      <div class="title">Watchdog Alerts</div>
+      <div id="alerts">No alerts yet.</div>
+    </div>
+    <div class="card">
+      <div class="title">CI Status</div>
+      <div id="ci">
+        <div class="metric">Badge (replace OWNER/REPO once uploaded):</div>
+        <img id="badge" alt="CI Badge" src="https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg"/>
+      </div>
+    </div>
+  </div>
+  <footer>Auto-refresh every <code>3s</code>. Run <code>python auditor/feature_auditor.py</code> to refresh Audit.</footer>
+<script>
+async function fetchJSON(url){ const r = await fetch(url); return r.json(); }
+function pill(text, ok=true){ const cls = ok?'ok':'bad'; return `<span class="pill ${cls}">${text}</span>`; }
+function row(k,v){ return `<div class="metric"><strong>${k}:</strong> ${v}</div>`; }
+
+async function refresh(){
+  try {
+    const [m, ms, fr, al] = await Promise.all([
+      fetchJSON('/metrics'),
+      fetchJSON('/mission/status'),
+      fetchJSON('/feature/report'),
+      fetchJSON('/alerts')
+    ]);
+    // Mode
+    document.getElementById('mode').innerText = `(${m.mode || 'SIM'})`;
+    // Metrics
+    const fpsOK = m.fps>=50, latOK = m.latency_ms<=40;
+    document.getElementById('metrics').innerHTML = [
+      row('FPS', `${m.fps.toFixed(1)} ${fpsOK?pill('OK'):pill('LOW',false)}`),
+      row('Latency', `${m.latency_ms.toFixed(1)} ms ${latOK?pill('OK'):pill('HIGH',false)}`),
+      row('Depth mean', m.depth_mean?.toFixed?m.depth_mean.toFixed(2):m.depth_mean),
+      row('Emotion', m.emotion)
+    ].join('');
+    // Audit
+    const active = fr.active||[], missing = fr.missing||[];
+    let auditHtml = '';
+    if (active.length || missing.length){
+      auditHtml += `<div>${pill(active.length+' active', true)} ${missing.length?pill(missing.length+' missing', false):pill('0 missing', true)}</div>`;
+      auditHtml += '<table><thead><tr><th>Feature</th><th>Status</th></tr></thead><tbody>';
+      const all = Object.entries(fr.summary||{});
+      for (const [name,status] of all){
+        const ok = (status||'').includes('Active');
+        auditHtml += `<tr><td>${name}</td><td>${ok?pill('Active', true):pill('Missing', false)}</td></tr>`;
+      }
+      auditHtml += '</tbody></table>';
+    } else {
+      auditHtml = '<div class="metric">No report yet. Run <code>python auditor/feature_auditor.py</code>.</div>';
+    }
+    document.getElementById('audit').innerHTML = auditHtml;
+    // Mission
+    document.getElementById('mission').innerHTML = [
+      row('Phase', ms.phase||'unknown'),
+      row('Progress', ms.progress||'—'),
+      row('Timestamp', new Date((ms.ts||0)*1000).toLocaleString())
+    ].join('');
+    // Alerts
+    const alerts = al.alerts||[];
+    document.getElementById('alerts').innerHTML = alerts.length
+      ? (`<ul>` + alerts.map(a=>`<li>${a}</li>`).join('') + `</ul>`)
+      : 'No alerts';
+  } catch(e){
+    document.getElementById('metrics').innerHTML = '<div class="metric">Server starting…</div>';
+  }
+}
+refresh(); setInterval(refresh, 3000);
+</script>
+</body>
+</html>

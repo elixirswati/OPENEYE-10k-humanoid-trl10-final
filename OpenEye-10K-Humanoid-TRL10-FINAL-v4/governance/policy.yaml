@@ -1,0 +1,12 @@
+
+rules:
+  - id: no-secret-leak
+    type: grep
+    pattern: "(OPENAI_API_KEY|PASSWORD=)"
+    action: block
+    message: "Secrets must not be in repo."
+  - id: license-compat
+    type: license
+    allowed: ["MIT","Apache-2.0","BSD-3-Clause"]
+    action: review
+    message: "Non-allowed or missing license."
